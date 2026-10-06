@@ -1,4 +1,5 @@
 import { HashRouter, Routes, Route } from 'react-router'
+import { UserProvider } from './context/UserContext'
 import { Dashboard } from './Pages/Dashboard'
 import { LoginPage } from './Pages/LoginPage'
 import { SetupPage } from './Pages/SetupPage'
@@ -10,7 +11,11 @@ function App() {
   //   throw redirect("/login");
   // }
 
+  // UserProvider sits outside the router so every route, guard, and the
+  // navbar can read the session via useUser().
   return (
+    // Context provider
+    <UserProvider>
     <div className="dottedBackground w-full h-svh">
       <div  className="">
         <HashRouter>
@@ -23,6 +28,7 @@ function App() {
         </HashRouter>
       </div>  
     </div>
+    </UserProvider>
   )
 }
 
