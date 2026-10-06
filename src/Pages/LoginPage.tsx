@@ -40,7 +40,8 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
         const result = await onLogin(email.trim(), password);
 
         if (!result.ok) {
-          setError("Invalid email or password.");
+          // Backend message when present, generic fallback that never breaks.
+          setError(result.message ?? "Invalid email or password.");
           return;
         }
 
