@@ -5,12 +5,8 @@
 // This page never fetches: it delegates to an injected login handler
 // (e.g. src/api/auth.ts) and only renders the returned result.
 import { useState } from "react";
-import type { LoginResult } from "../types";
-
-type LoginPageProps = {
-  // Injected by the parent/api layer. Defaults to a stub until wired.
-  onLogin?: (email: string, password: string) => Promise<LoginResult>;
-};
+import type { LoginPageProps, LoginResult } from "../types";
+import { validateLogin } from "../utils/validation";
 
 const stubLogin = async (): Promise<LoginResult> => ({
   ok: false,
@@ -31,18 +27,16 @@ export const LoginPage = ({ onLogin = stubLogin }: LoginPageProps) => {
     e.preventDefault();
     setError("");
 
-    // Lightweight client-side checks for fast UX; server is authoritative.
-    if (!email.trim()) return setError("Enter your email address.");
-    if (password.length < 8)
-      return setError("Passwords are at least 8 characters.");
+    // Shared client-side checks for fast UX; server is authoritative.
+    const clientError = validateLogin(email, password);
+    if (clientError) return setError(clientError);
 
     setBusy(true);
     // Delegate the request; only handle the result here.
     try {
       const result = await onLogin(email.trim(), password);
       if (!result.ok) {
-        // setError(result.message);
-        setError("login failed");
+        setError(result.message);
         return;
       }
       // TODO: store result.token, redirect by role.
@@ -55,9 +49,9 @@ export const LoginPage = ({ onLogin = stubLogin }: LoginPageProps) => {
 
   return (
     // Transparent to the parent: App.tsx provides .dottedBackground.
-    <section className="grid w-full place-items-center px-4 py-12">
+    <section className="grid w-full min-h-svh place-content-center px-4 py-12">
       {/* Card container: max 400px, white, 18px radius, original border + shadow. */}
-      <div className="w-full max-w-[400px] rounded-[18px] border border-[#e6e6e6] bg-white px-[clamp(22px,6vw,36px)] pb-7 pt-9 text-center text-[#0a0a0a] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-12px_rgba(0,0,0,0.12)]">
+      <div className="w-full max-w-[550px] rounded-[18px] border border-[#e6e6e6] bg-white px-[clamp(22px,6vw,36px)] pb-7 pt-9 text-center text-[#0a0a0a] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-12px_rgba(0,0,0,0.12)]">
         {/* Title + subtitle (no logo mark). */}
         <h1 className="mb-1.5 text-[22px] font-semibold tracking-[-0.02em]">
           Sign in to SilverMart
@@ -96,7 +90,7 @@ export const LoginPage = ({ onLogin = stubLogin }: LoginPageProps) => {
                 onClick={() => setShowPw((v) => !v)}
                 aria-label={showPw ? "Hide password" : "Show password"}
                 aria-pressed={showPw}
-                className="absolute right-[3px] top-[3px] grid h-9 w-9 place-items-center rounded-lg text-[#555] hover:bg-[#f2f2f2] hover:text-black"
+                className="absolute right-[3px] top-[3px] grid h-9 w-9 place-items-center rounded-lg text-[#555] hover:bg-[#f2f2f2] hover:text-black text-xs"
               >
                 {showPw ? "Hide" : "Show"}
               </button>

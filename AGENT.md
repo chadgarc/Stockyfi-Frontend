@@ -5,14 +5,16 @@ Build a responsive Single Page Application (SPA) for Stockify Local: closed inve
 
 ## 2. Stack & Global Architecture
 - **Framework:** React + Vite, `react-router-dom`.
-- **Styling:** Tailwind CSS + DaisyUI (toasts for errors).
-- **State Management:** React Context API (`AuthContext`) storing JWT `token`, `role`, and `storeId` in `localStorage`. Decode JWT on login to populate context.
-- **API Client:** Axios with `VITE_API_URL` as baseURL. Interceptors: automatically attach `Authorization: Bearer <token>` header; on 401 redirect to `/login`; on 403 display DaisyUI toast.
+- **Styling:** Tailwind CSS + DaisyUI (toasts for errors). Global `.dottedBackground` in `src/index.css` (dotted-grid backdrop applied once on the `App.tsx` root wrapper).
+- **State Management:** React Context API (`UserContext` + `UserProvider` in `src/context/UserContext.tsx`) storing `{ token, name, email, role, storeId }` in `localStorage`. Never store password. Owner has `storeId=null`. NOTE: JWT payload is `{ id }` only (see `Stockify-Backend/middleware/auth.js`), so role/storeId are never decoded — populate context via `GET /api/users/me` after login.
+- **API Client:** Axios (`src/api/client.ts`) with `VITE_API_URL` as baseURL (fallback to deploy URL in `resources/APIEndpointsRef.md`). Interceptors: automatically attach `Authorization: Bearer <token>` header; on 401 redirect to `/login`; on 403 display DaisyUI toast.
+- **Data Layer:** `src/hooks/useFetchData.ts` (loading/error state + categorized fetch functions per `resources/APIEndpointsRef.md`: auth, stores, items, users, business). Errors via `ApiError` + central `errorHandler` in `src/utils/apiError.ts`.
+- **Conventions:** `src/types/index.ts` holds shared data shapes as `type` (`UserRole`, `LoginResult`, `AuthUser`, `Store`, `Item`); component contracts as `interface` (`LoginPageProps`, etc.). Reusable field checks live in `src/utils/validation.ts` (login, register, profile update).
 - **Backend Contract:** See `../Stockify-Backend/AGENT.md`. Models: `Business{businessName,street,city,state,zipcode}`, `User{name,email,password(hashed),role:owner|manager|employee,storeId:null if owner else Store ref}`, `Store{name,street,city,state,zipcode}`, `Item{name,department?,inStock>=0,inShelf 0<=x<=inStock,storeId}`.
 
 ## 3. Auth / First-Run
 - `/setup` (First-Run): Form fields `businessName, street, city, state, zipcode, ownerName, email, password`. On submit map to `POST /api/auth/setup-owner` payload: `{businessName, businessAddress:{street,city,state,zipcode}, ownerName, email, password}`. Creates Business + owner with `storeId=null`. If backend returns 403 locked (owner already exists), redirect to `/login`.
-- `/login`: Form `email, password` mapping to `POST /api/auth/login`. Stores JWT, decodes `{id,role,storeId}` into `AuthContext`. Redirect by role:
+- `/login`: Form `email, password` mapping to `POST /api/auth/login` via the injected `LoginHandler` (`src/api` layer). Two-step flow (JWT carries `{ id }` only): 1) `POST /login` → `{ token }`, 2) `GET /api/users/me` with token → `{ name, email, role, storeId }` into `UserContext`. Redirect by role:
   - `owner` → `/stores`
   - `manager` → `/stores/:storeId` (own `storeId` from token)
   - `employee` → `/stores/:storeId/inventory` (own `storeId` from token)
@@ -61,7 +63,8 @@ Build a responsive Single Page Application (SPA) for Stockify Local: closed inve
 
 ## 7. Frontend Checklist (To-Do)
 - [ ] Initialize React/Vite project, install Tailwind CSS, DaisyUI, `react-router-dom`, Axios.
-- [ ] Implement `AuthContext` to parse, store, and provide JWT (`role` and `storeId`) globally + `PrivateRoute`, `RoleRoute`, `JurisdictionGuard`.
+- [ ] Implement `UserContext` + `UserProvider` to store and provide `{ token, name, email, role, storeId }` globally + `PrivateRoute`, `RoleRoute`, `JurisdictionGuard`.
+- [ ] Implement Axios client (`src/api/client.ts`) + `ApiError`/`errorHandler` (`src/utils/apiError.ts`) + categorized `useFetchData` hook (`src/hooks/useFetchData.ts`) per `resources/APIEndpointsRef.md`.
 - [ ] Build First-Run Setup form (`/setup`) matching exact nested `businessAddress` payload + 403-locked redirect.
 - [ ] Build Login view (`/login`) with role-based post-login redirects.
 - [ ] Build Dynamic Navbar (Owner: all; Manager: Staff+Inventory; Employee: Inventory only).
