@@ -1,16 +1,12 @@
-// src/api/client.ts
 // Single Axios instance for the whole app. Pages and hooks never call
 // fetch directly; they go through this client so auth and errors behave
-// the same everywhere. See resources/APIEndpointsRef.md for endpoints.
 import axios from "axios";
+import { STORAGE_KEY } from "../context/UserContext";
 
 /** Base URL: local override via .env, otherwise the deployed backend. */
 export const API_BASE_URL =
   (import.meta.env.VITE_API_URL as string | undefined) ??
   "https://stockyfi-backend.onrender.com/api";
-
-/** Storage key shared with UserContext (token + profile, never password). */
-const STORAGE_KEY = "stockify:user";
 
 /**
  * Shared client: 10s timeout, JSON by default.

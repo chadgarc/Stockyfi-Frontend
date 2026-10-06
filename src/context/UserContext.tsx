@@ -9,7 +9,7 @@ import {
 import type { AuthUser, UserContextValue, UserProviderProps } from "../types";
 
 /** Storage key for the persisted session. */
-const STORAGE_KEY = "stockify:user";
+export const STORAGE_KEY = "stockify:user";
 
 const UserContext = createContext<UserContextValue | null>(null);
 
