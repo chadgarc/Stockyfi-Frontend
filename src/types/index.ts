@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 // Roles
 export type UserRole = "owner" | "manager" | "associate";
 
@@ -55,3 +57,22 @@ export type Item = {
   /** Parent store id from the URL scope. */
   storeId: string;
 };
+
+/** Value exposed by the UserContext to every consumer. */
+export interface UserContextValue {
+  /** Current session, or null when logged out. */
+  user: AuthUser | null;
+  /** True when a session exists. Drives login vs dashboard routing. */
+  isAuthenticated: boolean;
+  /** True while restoring the session from storage on startup. */
+  isLoading: boolean;
+  /** Stores a complete session (used after the 2-step login finishes). */
+  login: (user: AuthUser) => void;
+  /** Clears state and storage. */
+  logout: () => void;
+}
+
+/** Props for the provider wrapper mounted once in App.tsx. */
+export interface UserProviderProps {
+  children: ReactNode;
+}
