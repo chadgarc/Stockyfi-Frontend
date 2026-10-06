@@ -11,6 +11,9 @@ import type { AuthUser, UserContextValue, UserProviderProps } from "../types";
 /** Storage key for the persisted session. */
 export const STORAGE_KEY = "stockify:user";
 
+/** Storage key for the cached business name shown in the navbar. */
+const BUSINESS_KEY = "stockify:business";
+
 const UserContext = createContext<UserContextValue | null>(null);
 
 /**
@@ -20,8 +23,9 @@ const UserContext = createContext<UserContextValue | null>(null);
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [businessName, setBusinessNameState] = useState<string | null>(null);
 
-  // Restore session once on mount.
+  // Restore session and cached business name once on mount.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -30,6 +34,12 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       localStorage.removeItem(STORAGE_KEY);
     } finally {
       setIsLoading(false);
+    }
+    try {
+      const cached = localStorage.getItem(BUSINESS_KEY);
+      if (cached) setBusinessNameState(JSON.parse(cached) as string);
+    } catch {
+      localStorage.removeItem(BUSINESS_KEY);
     }
   }, []);
 
@@ -43,6 +53,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     localStorage.removeItem(STORAGE_KEY);
   };
 
+  const setBusinessName = (name: string) => {
+    setBusinessNameState(name);
+    localStorage.setItem(BUSINESS_KEY, JSON.stringify(name));
+  };
+
   const value = useMemo<UserContextValue>(
     () => ({
       user,
@@ -50,8 +65,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       isLoading,
       login,
       logout,
+      businessName,
+      setBusinessName,
     }),
-    [user, isLoading],
+    [user, isLoading, businessName],
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

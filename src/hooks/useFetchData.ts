@@ -5,7 +5,12 @@
 import { useCallback, useState } from "react";
 import { api } from "../api/client";
 import { errorHandler, toApiError } from "../utils/apiError";
-import type { MeProfile, SetupPayload, UseFetchDataReturn } from "../types";
+import type {
+  BusinessInfo,
+  MeProfile,
+  SetupPayload,
+  UseFetchDataReturn,
+} from "../types";
 
 /**
  * Provides backend access with consistent loading/error handling.
@@ -78,5 +83,21 @@ export const useFetchData = (): UseFetchDataReturn => {
     }
   }, []);
 
-  return { loading, error, login, setup, fetchMe };
+  const fetchBusiness = useCallback(async (): Promise<BusinessInfo> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await api.get<BusinessInfo>("/info");
+      return data;
+    } catch (err) {
+      const apiErr = toApiError(err);
+      setError(apiErr.message);
+      errorHandler(apiErr);
+      throw apiErr;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { loading, error, login, setup, fetchMe, fetchBusiness };
 };

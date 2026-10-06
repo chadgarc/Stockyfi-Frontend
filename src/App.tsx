@@ -1,34 +1,37 @@
 import { HashRouter, Routes, Route } from 'react-router'
-import { UserProvider } from './context/UserContext'
-import { Dashboard } from './Pages/Dashboard'
+import { Dashboard } from './Pages/StoresDashboard'
 import { LoginPage } from './Pages/LoginPage'
 import { SetupPage } from './Pages/SetupPage'
+import { PrivateRoute, RoleRoute, JurisdictionGuard, RoleLanding } from './components/guards'
+import { Layout } from './components/Layout'
 
 function App() {
-
-  // async function loader({ request }: Route.LoaderArgs) {
-  // if (!isLoggedIn(request))
-  //   throw redirect("/login");
-  // }
-
-  // UserProvider sits outside the router so every route, guard, and the
-  // navbar can read the session via useUser().
+  // Public pages (login/setup) render without the navbar.
+  // Everything else requires a session and lives under Layout.
+  // TODO: replace Dashboard placeholders with StoresDashboard
+  // (/stores, owner) and StoreDashboard (/stores/:storeId hub).
   return (
-    // Context provider
-    <UserProvider>
     <div className="dottedBackground w-full h-svh">
-      <div  className="">
+      <div className="">
         <HashRouter>
           <Routes>
-            <Route path='/' element={<Dashboard />} />
             <Route path="/setup" element={<SetupPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route element={<PrivateRoute />}>
+              <Route element={<Layout />}>
+                <Route path="/" element={<RoleLanding />} />
+                <Route element={<RoleRoute allowed={["owner"]} />}>
+                  <Route path="/stores" element={<Dashboard />} />
+                </Route>
+                <Route element={<JurisdictionGuard />}>
+                  <Route path="/stores/:storeId" element={<Dashboard />} />
+                </Route>
+              </Route>
+            </Route>
           </Routes>
         </HashRouter>
-      </div>  
+      </div>
     </div>
-    </UserProvider>
   )
 }
 

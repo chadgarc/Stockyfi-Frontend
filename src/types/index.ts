@@ -6,7 +6,7 @@ export type UserRole = "owner" | "manager" | "associate";
 // Result returned by the auth layer after a login attempt.
 // ok=false surfaces its message in red above the Continue button.
 export type LoginResult =
-  | { ok: true; token: string }
+  | { ok: true; token: string ; message?: string }
   | { ok: false; message: string };
 
 // Injectable auth handler: the page never fetches, only renders the result.
@@ -70,6 +70,10 @@ export interface UserContextValue {
   login: (user: AuthUser) => void;
   /** Clears state and storage. */
   logout: () => void;
+  /** Business display name for the navbar. Cached across sessions. */
+  businessName: string | null;
+  /** Stores the business name after fetching GET /api/info. */
+  setBusinessName: (name: string) => void;
 }
 
 /** Props for the provider wrapper mounted once in App.tsx. */
@@ -97,6 +101,16 @@ export interface MeProfile {
   storeId: string | null;
 }
 
+/** Business info from GET /api/info. Navbar only reads `name`. */
+export interface BusinessInfo {
+  name: string;
+  streetAddress?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  phone?: string;
+}
+
 /** Value returned by the hook: shared state plus fetch functions. */
 export interface UseFetchDataReturn {
   /** True while any hook request is in flight. */
@@ -109,4 +123,14 @@ export interface UseFetchDataReturn {
   setup: (payload: SetupPayload) => Promise<string>;
   /** GET /users/me -> profile. Pass a fresh token on first login. */
   fetchMe: (token?: string) => Promise<MeProfile>;
+  /** GET /api/info -> business. Navbar only reads `name`. */
+  fetchBusiness: () => Promise<BusinessInfo>;
+}
+
+/** Props for role-based access. */
+export interface RoleRouteProps {
+  /** Roles allowed to see the nested routes. */
+  allowed: UserRole[];
+  /** Where to send denied roles. Defaults to their landing page. */
+  fallback?: string;
 }
