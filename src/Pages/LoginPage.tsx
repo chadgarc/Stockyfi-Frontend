@@ -1,9 +1,3 @@
-// src/Pages/LoginPage.tsx
-// Centered sign-in card floating over the global .dottedBackground.
-// Background lives in src/index.css + App.tsx wrapper, NOT here.
-// Server error message (non-2xx) renders in red above Continue.
-// This page never fetches: it delegates to an injected login handler
-// (e.g. src/api/auth.ts) and only renders the returned result.
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { LoginPageProps } from "../types";
@@ -16,11 +10,14 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
   const navigate = useNavigate();
   const { login: saveSession } = useUser();
   const { login: apiLogin, fetchMe } = useFetchData();
+
   // Form state.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
   // Toggles the eye button.
   const [showPw, setShowPw] = useState(false);
+  
   // Single error line shown in red above Continue (client or server).
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -39,19 +36,36 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
     // A custom onLogin prop (tests) overrides this and returns LoginResult.
     try {
       if (onLogin) {
+        // attempt to login the user.
         const result = await onLogin(email.trim(), password);
+
         if (!result.ok) {
-          setError(result.message);
+          setError("Invalid email or password.");
           return;
         }
+
+        // Get the profile of the logged in user.
         const me = await fetchMe(result.token);
+
+        // Save the user into the context and local storage.
         saveSession({ token: result.token, ...me });
+
+        // owner main page is stores and any other user is inside the store dashboard.
         navigate(me.role === "owner" ? "/stores" : `/stores/${me.storeId}`);
         return;
       }
+
+      // if onLogin is not provided, use the default flow.
+      // Login with the email and password.
       const token = await apiLogin(email.trim(), password);
+
+      // Get the profile of the logged in user.
       const me = await fetchMe(token);
+
+      // Save the user into the context and local storage.
       saveSession({ token, ...me });
+
+      // owner main page is stores and any other user is inside the store dashboard.
       navigate(me.role === "owner" ? "/stores" : `/stores/${me.storeId}`);
     } catch (err) {
       setError(
