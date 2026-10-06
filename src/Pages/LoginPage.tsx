@@ -5,15 +5,17 @@
 // This page never fetches: it delegates to an injected login handler
 // (e.g. src/api/auth.ts) and only renders the returned result.
 import { useState } from "react";
-import type { LoginPageProps, LoginResult } from "../types";
+import { useNavigate } from "react-router";
+import type { LoginPageProps } from "../types";
 import { validateLogin } from "../utils/validation";
+import { useFetchData } from "../hooks/useFetchData";
+import { useUser } from "../context/UserContext";
+import { ApiError } from "../utils/apiError";
 
-const stubLogin = async (): Promise<LoginResult> => ({
-  ok: false,
-  message: "Login service not wired yet.",
-});
-
-export const LoginPage = ({ onLogin = stubLogin }: LoginPageProps) => {
+export const LoginPage = ({ onLogin }: LoginPageProps) => {
+  const navigate = useNavigate();
+  const { login: saveSession } = useUser();
+  const { login: apiLogin, fetchMe } = useFetchData();
   // Form state.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,16 +34,31 @@ export const LoginPage = ({ onLogin = stubLogin }: LoginPageProps) => {
     if (clientError) return setError(clientError);
 
     setBusy(true);
-    // Delegate the request; only handle the result here.
+    // Default 2-step flow (JWT carries id only): login -> token,
+    // fetchMe(token) -> profile, save both into UserContext.
+    // A custom onLogin prop (tests) overrides this and returns LoginResult.
     try {
-      const result = await onLogin(email.trim(), password);
-      if (!result.ok) {
-        setError(result.message);
+      if (onLogin) {
+        const result = await onLogin(email.trim(), password);
+        if (!result.ok) {
+          setError(result.message);
+          return;
+        }
+        const me = await fetchMe(result.token);
+        saveSession({ token: result.token, ...me });
+        navigate(me.role === "owner" ? "/stores" : `/stores/${me.storeId}`);
         return;
       }
-      // TODO: store result.token, redirect by role.
-    } catch {
-      setError("Network error. Check your connection and try again.");
+      const token = await apiLogin(email.trim(), password);
+      const me = await fetchMe(token);
+      saveSession({ token, ...me });
+      navigate(me.role === "owner" ? "/stores" : `/stores/${me.storeId}`);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Network error. Check your connection and try again.",
+      );
     } finally {
       setBusy(false);
     }

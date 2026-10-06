@@ -5,7 +5,7 @@
 import { useCallback, useState } from "react";
 import { api } from "../api/client";
 import { errorHandler, toApiError } from "../utils/apiError";
-import type { SetupPayload, UseFetchDataReturn } from "../types";
+import type { MeProfile, SetupPayload, UseFetchDataReturn } from "../types";
 
 /**
  * Provides backend access with consistent loading/error handling.
@@ -58,5 +58,25 @@ export const useFetchData = (): UseFetchDataReturn => {
     }
   }, []);
 
-  return { loading, error, login, setup };
+  const fetchMe = useCallback(async (token?: string): Promise<MeProfile> => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Fresh token override for first login, when storage has no session yet.
+      const { data } = await api.get<MeProfile>(
+        "/users/me",
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
+      );
+      return data;
+    } catch (err) {
+      const apiErr = toApiError(err);
+      setError(apiErr.message);
+      errorHandler(apiErr);
+      throw apiErr;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { loading, error, login, setup, fetchMe };
 };

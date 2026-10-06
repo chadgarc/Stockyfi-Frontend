@@ -89,6 +89,14 @@ export interface SetupPayload {
   password: string;
 }
 
+/** Profile returned by GET /users/me (never includes password). */
+export interface MeProfile {
+  name: string;
+  email: string;
+  role: UserRole;
+  storeId: string | null;
+}
+
 /** Value returned by the hook: shared state plus fetch functions. */
 export interface UseFetchDataReturn {
   /** True while any hook request is in flight. */
@@ -99,4 +107,6 @@ export interface UseFetchDataReturn {
   login: (email: string, password: string) => Promise<string>;
   /** POST /auth/setup -> JWT token. 403 when already locked. */
   setup: (payload: SetupPayload) => Promise<string>;
+  /** GET /users/me -> profile. Pass a fresh token on first login. */
+  fetchMe: (token?: string) => Promise<MeProfile>;
 }
