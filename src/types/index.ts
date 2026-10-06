@@ -76,3 +76,27 @@ export interface UserContextValue {
 export interface UserProviderProps {
   children: ReactNode;
 }
+
+/** Payload for POST /auth/setup (first-run owner wizard). */
+export interface SetupPayload {
+  name: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zip: string;
+  ownerName: string;
+  email: string;
+  password: string;
+}
+
+/** Value returned by the hook: shared state plus fetch functions. */
+export interface UseFetchDataReturn {
+  /** True while any hook request is in flight. */
+  loading: boolean;
+  /** Last backend message, or null when clean. */
+  error: string | null;
+  /** POST /auth/login -> JWT token. 401 on bad credentials. */
+  login: (email: string, password: string) => Promise<string>;
+  /** POST /auth/setup -> JWT token. 403 when already locked. */
+  setup: (payload: SetupPayload) => Promise<string>;
+}
