@@ -1,6 +1,8 @@
 import { HashRouter, Routes, Route } from 'react-router'
 import { StoresDashboard } from './Pages/StoresDashboard'
 import { StoreDashboard } from './Pages/StoreDashboard'
+import { UsersPage } from './Pages/UsersPage'
+import { OwnersPage } from './Pages/OwnersPage'
 import { LoginPage } from './Pages/LoginPage'
 import { SetupPage } from './Pages/SetupPage'
 import { PrivateRoute, RoleRoute, JurisdictionGuard, RoleLanding } from './components/guards'
@@ -21,9 +23,15 @@ function App() {
                 <Route path="/" element={<RoleLanding />} />
                 <Route element={<RoleRoute allowed={["owner"]} />}>
                   <Route path="/stores" element={<StoresDashboard />} />
+                  <Route path="/owners" element={<OwnersPage />} />
                 </Route>
                 <Route element={<JurisdictionGuard />}>
                   <Route path="/stores/:storeId" element={<StoreDashboard />} />
+                  <Route
+                    element={<RoleRoute allowed={["owner", "manager"]} />}
+                  >
+                    <Route path="/stores/:storeId/users" element={<UsersPage />} />
+                  </Route>
                 </Route>
               </Route>
             </Route>
