@@ -99,6 +99,15 @@ export interface SetupPayload {
   password: string;
 }
 
+/** Payload for POST /api/stores (owner creates a location). */
+export interface NewStorePayload {
+  name: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
 /** Profile returned by GET /users/me (never includes password). */
 export interface MeProfile {
   name: string;
@@ -133,6 +142,8 @@ export interface UseFetchDataReturn {
   fetchBusiness: () => Promise<BusinessInfo>;
   /** GET /api/stores -> all stores (owner) or own store (rest). */
   listStores: () => Promise<Store[]>;
+  /** POST /api/stores -> 201 {message} (no store body). Re-fetch after. */
+  createStore: (payload: NewStorePayload) => Promise<void>;
 }
 
 /** Props for role-based access. */

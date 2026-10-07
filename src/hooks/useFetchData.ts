@@ -8,6 +8,7 @@ import { errorHandler, toApiError } from "../utils/apiError";
 import type {
   BusinessInfo,
   MeProfile,
+  NewStorePayload,
   SetupPayload,
   Store,
   UseFetchDataReturn,
@@ -117,5 +118,33 @@ export const useFetchData = (): UseFetchDataReturn => {
     }
   }, []);
 
-  return { loading, error, login, setup, fetchMe, fetchBusiness, listStores };
+  const createStore = useCallback(
+    async (payload: NewStorePayload): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Backend answers 201 {message} with no store body.
+        await api.post<{ message: string }>("/stores", payload);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  return {
+    loading,
+    error,
+    login,
+    setup,
+    fetchMe,
+    fetchBusiness,
+    listStores,
+    createStore,
+  };
 };

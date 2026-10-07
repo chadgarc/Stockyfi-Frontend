@@ -4,6 +4,7 @@
 import { useNavigate } from "react-router";
 import { useUser } from "../context/UserContext";
 import type { CardProps } from "../types";
+import { BTN_PRIMARY_OUTLINE } from "../constants/ui";
 
 export const Card = ({ store, onSelect }: CardProps) => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export const Card = ({ store, onSelect }: CardProps) => {
         <div className="card-actions justify-end">
           <button
             type="button"
-            className="btn btn-primary"
+            className={BTN_PRIMARY_OUTLINE}
             onClick={handleClick}
           >
             Open

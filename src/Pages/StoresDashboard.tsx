@@ -70,8 +70,9 @@ export const StoresDashboard = () => {
     if (Object.values(errors).some(Boolean)) return;
     setSaving(true);
     try {
-      const created = await createStore(form);
-      setStores((prev) => [...prev, created]);
+      // Create only confirms; the list is the source of truth.
+      await createStore(form);
+      setStores(await listStores());
       closeModal();
     } catch (err) {
       setFieldErrors((prev) => ({
