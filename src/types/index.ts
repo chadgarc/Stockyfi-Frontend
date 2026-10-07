@@ -146,6 +146,32 @@ export interface UseFetchDataReturn {
   createStore: (payload: NewStorePayload) => Promise<void>;
   /** DELETE /api/stores/:storeId -> 200 (cascade). Re-fetch after. */
   deleteStore: (storeId: string) => Promise<void>;
+  /** GET /api/stores/:storeId/users -> staff of one store. */
+  listUsers: (storeId: string) => Promise<StaffUser[]>;
+  /** GET /api/users (owner) filtered to role owner. */
+  listOwners: () => Promise<StaffUser[]>;
+  /** POST /api/auth/register -> 201 {message}. Re-fetch after. */
+  registerEmployee: (payload: RegisterEmployeePayload) => Promise<void>;
+  /** PUT .../users/:userId -> updated staff member. */
+  updateEmployee: (
+    storeId: string,
+    userId: string,
+    payload: UpdateEmployeePayload,
+  ) => Promise<void>;
+  /** DELETE .../users/:userId -> 200. Re-fetch after. */
+  deleteEmployee: (storeId: string, userId: string) => Promise<void>;
+  /** PUT .../users/:userId {storeId} -> move (owner only). Re-fetch after. */
+  transferEmployee: (userId: string, targetStoreId: string) => Promise<void>;
+  /** PUT /api/users/owners/:userId -> update an owner (owner only). */
+  updateOwner: (userId: string, payload: UpdateEmployeePayload) => Promise<void>;
+  /** DELETE /api/users/owners/:userId -> remove an owner (owner only). */
+  deleteOwner: (userId: string) => Promise<void>;
+  /** POST /api/users/owners -> create an owner (owner only, role assumed). */
+  createOwner: (payload: {
+    name: string;
+    email: string;
+    password: string;
+  }) => Promise<void>;
 }
 
 /** Props for role-based access. */
@@ -162,6 +188,43 @@ export interface CardProps {
   onSelect?: (storeId: string) => void;
   /** Called when the Delete button is pressed (opens confirm modal). */
   onDelete?: (store: Store) => void;
+}
+
+/** Staff member listed in EmployeeManagement (never includes password). */
+export interface StaffUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  storeId: string | null;
+}
+
+/** Payload for POST /api/auth/register (staff invite). */
+export interface RegisterEmployeePayload {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  /** Omitted for managers (backend forces own store); null for global owners. */
+  storeId?: string | null;
+}
+
+/** Editable fields for PUT .../users/:userId. */
+export interface UpdateEmployeePayload {
+  name?: string;
+  email?: string;
+  role?: UserRole;
+}
+
+/** Props for the shared employee table (used by Users + Owners pages). */
+export interface EmployeeTableProps {
+  employees: StaffUser[];
+  loading: boolean;
+  /** Shows the transfer action column (owners page hides it). */
+  showTransfer: boolean;
+  onEdit: (user: StaffUser) => void;
+  onDelete: (user: StaffUser) => void;
+  onTransfer?: (user: StaffUser) => void;
 }
 
 /** Props for the back button component. */
