@@ -9,8 +9,11 @@ import type {
   BusinessInfo,
   MeProfile,
   NewStorePayload,
+  RegisterEmployeePayload,
   SetupPayload,
+  StaffUser,
   Store,
+  UpdateEmployeePayload,
   UseFetchDataReturn,
 } from "../types";
 
@@ -153,6 +156,175 @@ export const useFetchData = (): UseFetchDataReturn => {
     }
   }, []);
 
+  // --- Staff ---
+  const listUsers = useCallback(async (storeId: string): Promise<StaffUser[]> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await api.get<StaffUser[]>(`/stores/${storeId}/users`);
+      return data;
+    } catch (err) {
+      const apiErr = toApiError(err);
+      setError(apiErr.message);
+      errorHandler(apiErr);
+      throw apiErr;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const listOwners = useCallback(async (): Promise<StaffUser[]> => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Owner sees all users; filter to owners client-side (no GET /owners yet).
+      const { data } = await api.get<StaffUser[]>("/users");
+      return data.filter((u) => u.role === "owner");
+    } catch (err) {
+      const apiErr = toApiError(err);
+      setError(apiErr.message);
+      errorHandler(apiErr);
+      throw apiErr;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const registerEmployee = useCallback(
+    async (payload: RegisterEmployeePayload): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Backend answers 201 {message} with no user body.
+        await api.post<{ message: string }>("/auth/register", payload);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const updateEmployee = useCallback(
+    async (
+      storeId: string,
+      userId: string,
+      payload: UpdateEmployeePayload,
+    ): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        await api.put(`/stores/${storeId}/users/${userId}`, payload);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const deleteEmployee = useCallback(
+    async (storeId: string, userId: string): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        await api.delete(`/stores/${storeId}/users/${userId}`);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const transferEmployee = useCallback(
+    async (userId: string, targetStoreId: string): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Owner-only: backend rejects managers moving users across stores.
+        await api.put(`/users/${userId}`, { storeId: targetStoreId });
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const updateOwner = useCallback(
+    async (userId: string, payload: UpdateEmployeePayload): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        await api.put(`/users/owners/${userId}`, payload);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const deleteOwner = useCallback(async (userId: string): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Backend safeguards the last remaining owner.
+      await api.delete(`/users/owners/${userId}`);
+    } catch (err) {
+      const apiErr = toApiError(err);
+      setError(apiErr.message);
+      errorHandler(apiErr);
+      throw apiErr;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createOwner = useCallback(
+    async (payload: {
+      name: string;
+      email: string;
+      password: string;
+    }): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Role is assumed owner server-side.
+        await api.post<{ message: string }>("/users/owners", payload);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
   return {
     loading,
     error,
@@ -163,5 +335,14 @@ export const useFetchData = (): UseFetchDataReturn => {
     listStores,
     createStore,
     deleteStore,
+    listUsers,
+    listOwners,
+    registerEmployee,
+    updateEmployee,
+    deleteEmployee,
+    transferEmployee,
+    updateOwner,
+    deleteOwner,
+    createOwner,
   };
 };
