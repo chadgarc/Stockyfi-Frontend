@@ -86,7 +86,7 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
       <div className="w-full max-w-[550px] rounded-[18px] border border-[#e6e6e6] bg-white px-[clamp(22px,6vw,36px)] pb-7 pt-9 text-center text-[#0a0a0a] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-12px_rgba(0,0,0,0.12)]">
         {/* Title + subtitle (no logo mark). */}
         <h1 className="mb-1.5 text-[22px] font-semibold tracking-[-0.02em]">
-          Sign in to SilverMart
+          Sign in to Stockify
         </h1>
         <p className="mb-6 text-sm text-[#555]">
           Welcome back. Sign in with your email.
@@ -145,6 +145,15 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
             {busy ? "Signing in…" : "Continue"}
           </button>
         </form>
+
+        {/* Manual entry to the first-run wizard (fresh/empty database). */}
+        <button
+          type="button"
+          className="link mt-4 text-sm"
+          onClick={() => navigate("/setup")}
+        >
+          First-time setup
+        </button>
       </div>
     </section>
   );
