@@ -137,6 +137,22 @@ export const useFetchData = (): UseFetchDataReturn => {
     [],
   );
 
+  const deleteStore = useCallback(async (storeId: string): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Backend cascades: store + its items + its staff.
+      await api.delete(`/stores/${storeId}`);
+    } catch (err) {
+      const apiErr = toApiError(err);
+      setError(apiErr.message);
+      errorHandler(apiErr);
+      throw apiErr;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     loading,
     error,
@@ -146,5 +162,6 @@ export const useFetchData = (): UseFetchDataReturn => {
     fetchBusiness,
     listStores,
     createStore,
+    deleteStore,
   };
 };

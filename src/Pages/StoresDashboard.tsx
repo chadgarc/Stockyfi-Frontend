@@ -8,7 +8,7 @@ import { useFetchData } from "../hooks/useFetchData";
 import { Card } from "../components/Card";
 import { Field } from "../components/Field";
 import { Modal } from "../components/Modal";
-import { BTN_OUTLINE, BTN_PRIMARY_OUTLINE } from "../constants/ui";
+import { BTN_ERROR_OUTLINE, BTN_OUTLINE, BTN_PRIMARY_OUTLINE } from "../constants/ui";
 import { validateStore, type StoreFieldErrors } from "../utils/validation";
 import { ApiError } from "../utils/apiError";
 import type { NewStorePayload, Store } from "../types";
@@ -31,10 +31,12 @@ const EMPTY_ERRORS: StoreFieldErrors = {
 
 export const StoresDashboard = () => {
   const { user, clearSelectedStoreId } = useUser();
-  const { listStores, createStore, loading } = useFetchData();
+  const { listStores, createStore, deleteStore, loading } = useFetchData();
   const [stores, setStores] = useState<Store[]>([]);
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [pending, setPending] = useState<Store | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState<NewStorePayload>(EMPTY_FORM);
   const [fieldErrors, setFieldErrors] =
     useState<StoreFieldErrors>(EMPTY_ERRORS);
@@ -87,6 +89,23 @@ export const StoresDashboard = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!pending) return;
+    setDeleting(true);
+    try {
+      await deleteStore(pending._id);
+      setStores(await listStores());
+      setPending(null);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Could not delete the store.",
+      );
+      setPending(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-8">
 
@@ -117,7 +136,9 @@ export const StoresDashboard = () => {
         {loading && stores.length === 0 ? (
           <p className="opacity-70">Loading stores…</p>
         ) : (
-          stores.map((store) => <Card key={store._id} store={store} />)
+          stores.map((store) => (
+            <Card key={store._id} store={store} onDelete={setPending} />
+          ))
         )}
       </div>
 
@@ -170,6 +191,38 @@ export const StoresDashboard = () => {
             disabled={saving}
           >
             {saving ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        id="delete-store"
+        title="Delete Store?"
+        open={pending !== null}
+        onClose={() => setPending(null)}
+      >
+        <p className="py-2 font-medium text-error">This cannot be undone.</p>
+        <p>
+          Deleting <b>{pending?.name}</b> will permanently remove:
+        </p>
+        <p>• The store location.</p>
+        <p>• All its inventory items.</p>
+        <p>• All employees assigned to it.</p>
+        <div className="modal-action">
+          <button
+            type="button"
+            className={BTN_OUTLINE}
+            onClick={() => setPending(null)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={BTN_ERROR_OUTLINE}
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            {deleting ? "Deleting…" : "Delete"}
           </button>
         </div>
       </Modal>

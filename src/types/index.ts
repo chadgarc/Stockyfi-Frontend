@@ -144,6 +144,8 @@ export interface UseFetchDataReturn {
   listStores: () => Promise<Store[]>;
   /** POST /api/stores -> 201 {message} (no store body). Re-fetch after. */
   createStore: (payload: NewStorePayload) => Promise<void>;
+  /** DELETE /api/stores/:storeId -> 200 (cascade). Re-fetch after. */
+  deleteStore: (storeId: string) => Promise<void>;
 }
 
 /** Props for role-based access. */
@@ -154,10 +156,12 @@ export interface RoleRouteProps {
   fallback?: string;
 }
 
-/** Props for the store card used by the owner's dashboard. */
+/** Props for the reusable store card used by the owner's dashboard. */
 export interface CardProps {
   store: Store;
   onSelect?: (storeId: string) => void;
+  /** Called when the Delete button is pressed (opens confirm modal). */
+  onDelete?: (store: Store) => void;
 }
 
 /** Props for the back button component. */
