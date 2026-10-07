@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route } from 'react-router'
-import { Dashboard } from './Pages/StoresDashboard'
+import { StoresDashboard } from './Pages/StoresDashboard'
+import { StoreDashboard } from './Pages/StoreDashboard'
 import { LoginPage } from './Pages/LoginPage'
 import { SetupPage } from './Pages/SetupPage'
 import { PrivateRoute, RoleRoute, JurisdictionGuard, RoleLanding } from './components/guards'
@@ -8,8 +9,6 @@ import { Layout } from './components/Layout'
 function App() {
   // Public pages (login/setup) render without the navbar.
   // Everything else requires a session and lives under Layout.
-  // TODO: replace Dashboard placeholders with StoresDashboard
-  // (/stores, owner) and StoreDashboard (/stores/:storeId hub).
   return (
     <div className="dottedBackground w-full h-svh">
       <div className="">
@@ -21,10 +20,10 @@ function App() {
               <Route element={<Layout />}>
                 <Route path="/" element={<RoleLanding />} />
                 <Route element={<RoleRoute allowed={["owner"]} />}>
-                  <Route path="/stores" element={<Dashboard />} />
+                  <Route path="/stores" element={<StoresDashboard />} />
                 </Route>
                 <Route element={<JurisdictionGuard />}>
-                  <Route path="/stores/:storeId" element={<Dashboard />} />
+                  <Route path="/stores/:storeId" element={<StoreDashboard />} />
                 </Route>
               </Route>
             </Route>

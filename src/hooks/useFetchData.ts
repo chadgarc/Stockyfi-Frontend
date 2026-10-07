@@ -9,6 +9,7 @@ import type {
   BusinessInfo,
   MeProfile,
   SetupPayload,
+  Store,
   UseFetchDataReturn,
 } from "../types";
 
@@ -99,5 +100,22 @@ export const useFetchData = (): UseFetchDataReturn => {
     }
   }, []);
 
-  return { loading, error, login, setup, fetchMe, fetchBusiness };
+  // --- Stores ---
+  const listStores = useCallback(async (): Promise<Store[]> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await api.get<Store[]>("/stores");
+      return data;
+    } catch (err) {
+      const apiErr = toApiError(err);
+      setError(apiErr.message);
+      errorHandler(apiErr);
+      throw apiErr;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { loading, error, login, setup, fetchMe, fetchBusiness, listStores };
 };

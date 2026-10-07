@@ -131,6 +131,8 @@ export interface UseFetchDataReturn {
   fetchMe: (token?: string) => Promise<MeProfile>;
   /** GET /api/info -> business. Navbar only reads `name`. */
   fetchBusiness: () => Promise<BusinessInfo>;
+  /** GET /api/stores -> all stores (owner) or own store (rest). */
+  listStores: () => Promise<Store[]>;
 }
 
 /** Props for role-based access. */
