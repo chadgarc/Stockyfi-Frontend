@@ -69,6 +69,13 @@ export const Layout = () => {
                 <NavLink to={`/stores/${ownerStoreId}/users`}>Users</NavLink>
               </li>
             )}
+            {role === "owner" && ownerStoreId && (
+              <li>
+                <NavLink to={`/stores/${ownerStoreId}/inventory`}>
+                  Inventory
+                </NavLink>
+              </li>
+            )}
             {role === "manager" && storeId && (
               <li>
                 <NavLink to={`/stores/${storeId}/users`}>Users</NavLink>

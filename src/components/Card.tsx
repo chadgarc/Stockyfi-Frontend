@@ -1,14 +1,27 @@
 // src/components/Card.tsx
 // Reusable store card for the owner's dashboard (DaisyUI card).
 // Click saves the temporal store and navigates to its hub.
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useUser } from "../context/UserContext";
+import { useFetchData } from "../hooks/useFetchData";
 import type { CardProps } from "../types";
 import { BTN_ERROR_OUTLINE, BTN_OUTLINE, BTN_PRIMARY_OUTLINE } from "../constants/ui";
 
 export const Card = ({ store, onSelect, onDelete, onEdit }: CardProps) => {
   const navigate = useNavigate();
   const { setSelectedStoreId } = useUser();
+  const { listUsers } = useFetchData();
+  // Employee count for this store; null while loading or on failure.
+  const [count, setCount] = useState<number | null>(null);
+
+  // One request per card; failures hide the count without breaking the card.
+  useEffect(() => {
+    listUsers(store._id)
+      .then((users) => setCount(users.length))
+      .catch(() => setCount(null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store._id]);
 
   // Click: save temporal store for owner navbar links, then open the hub.
   const handleClick = () => {
@@ -41,6 +54,9 @@ export const Card = ({ store, onSelect, onDelete, onEdit }: CardProps) => {
         <h2 className="card-title">{store.name}</h2>
         <p>
           {store.streetAddress}, {store.city}
+        </p>
+        <p className="text-sm opacity-70">
+          {count === null ? "… employees" : `${count} employees`}
         </p>
         <div className="card-actions justify-between">
           <button

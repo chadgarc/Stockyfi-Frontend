@@ -8,12 +8,15 @@ import { errorHandler, toApiError } from "../utils/apiError";
 import type {
   BusinessInfo,
   MeProfile,
+  NewItemPayload,
   NewStorePayload,
   RegisterEmployeePayload,
   SetupPayload,
   StaffUser,
   Store,
+  Item,
   UpdateEmployeePayload,
+  UpdateItemPayload,
   UseFetchDataReturn,
 } from "../types";
 
@@ -344,6 +347,85 @@ export const useFetchData = (): UseFetchDataReturn => {
     [],
   );
 
+  // --- Items ---
+  const listItems = useCallback(async (storeId: string): Promise<Item[]> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await api.get<Item[]>(`/stores/${storeId}/items`);
+      return data;
+    } catch (err) {
+      const apiErr = toApiError(err);
+      setError(apiErr.message);
+      errorHandler(apiErr);
+      throw apiErr;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createItem = useCallback(
+    async (storeId: string, payload: NewItemPayload): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Backend answers 201 {message} with no item body.
+        await api.post<{ message: string }>(
+          `/stores/${storeId}/items`,
+          payload,
+        );
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const updateItem = useCallback(
+    async (
+      storeId: string,
+      itemId: string,
+      payload: UpdateItemPayload,
+    ): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        await api.put(`/stores/${storeId}/items/${itemId}`, payload);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const deleteItem = useCallback(
+    async (storeId: string, itemId: string): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        await api.delete(`/stores/${storeId}/items/${itemId}`);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
   return {
     loading,
     error,
@@ -364,5 +446,9 @@ export const useFetchData = (): UseFetchDataReturn => {
     updateOwner,
     deleteOwner,
     createOwner,
+    listItems,
+    createItem,
+    updateItem,
+    deleteItem,
   };
 };

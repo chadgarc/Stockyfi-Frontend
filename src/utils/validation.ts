@@ -44,3 +44,28 @@ export const validateStore = (payload: {
   state: payload.state.trim() ? "" : "Enter the state.",
   zip: payload.zip.trim() ? "" : "Enter the zip code.",
 });
+
+// Validates item counts: stock >= 0 and 0 <= shelf <= stock.
+export const validateItemCounts = (
+  inStock: number,
+  inShelf: number,
+): string => {
+  if (!Number.isFinite(inStock) || inStock < 0)
+    return "Stock must be 0 or more.";
+  if (!Number.isFinite(inShelf) || inShelf < 0)
+    return "Shelf must be 0 or more.";
+  if (inShelf > inStock) return "Shelf cannot exceed stock.";
+  return "";
+};
+
+// Validates the add/edit item form (required fields + count rules).
+export const validateItemForm = (payload: {
+  name: string;
+  upc: string;
+  inStock: number;
+  inShelf: number;
+}): string => {
+  if (!payload.name.trim()) return "Enter the product name.";
+  if (!payload.upc.trim()) return "Enter the UPC.";
+  return validateItemCounts(payload.inStock, payload.inShelf);
+};

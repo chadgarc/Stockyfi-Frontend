@@ -174,7 +174,40 @@ export interface UseFetchDataReturn {
     email: string;
     password: string;
   }) => Promise<void>;
+  /** GET /api/stores/:storeId/items -> full inventory list. */
+  listItems: (storeId: string) => Promise<Item[]>;
+  /** POST .../items -> 201 {message} (owner|manager). Re-fetch after. */
+  createItem: (storeId: string, payload: NewItemPayload) => Promise<void>;
+  /** PUT .../items/:itemId -> updated (associates send inShelf only). */
+  updateItem: (
+    storeId: string,
+    itemId: string,
+    payload: UpdateItemPayload,
+  ) => Promise<void>;
+  /** DELETE .../items/:itemId -> 200 (owner|manager). Re-fetch after. */
+  deleteItem: (storeId: string, itemId: string) => Promise<void>;
 }
+
+/** Payload for POST /api/stores/:storeId/items. */
+export interface NewItemPayload {
+  name: string;
+  upc: string;
+  inStock: number;
+  inShelf: number;
+  department?: string;
+}
+
+/** Editable fields for PUT .../items/:itemId. Associates send inShelf only. */
+export interface UpdateItemPayload {
+  name?: string;
+  upc?: string;
+  inStock?: number;
+  inShelf?: number;
+  department?: string;
+}
+
+/** Search field for the inventory filter (in-memory, no extra requests). */
+export type ItemSearchField = "upc" | "name" | "department";
 
 /** Props for role-based access. */
 export interface RoleRouteProps {
