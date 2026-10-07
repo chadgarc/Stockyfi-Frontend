@@ -74,6 +74,12 @@ export interface UserContextValue {
   businessName: string | null;
   /** Stores the business name after fetching GET /api/info. */
   setBusinessName: (name: string) => void;
+  /** The store ID currently selected by the user. */
+  selectedStoreId: string | null;
+  /** Sets the selected store ID. */
+  setSelectedStoreId: (storeId: string | null) => void;
+  /** Clears the selected store ID. */
+  clearSelectedStoreId: () => void;
 }
 
 /** Props for the provider wrapper mounted once in App.tsx. */

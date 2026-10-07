@@ -24,6 +24,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [businessName, setBusinessNameState] = useState<string | null>(null);
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
 
   // Restore session and cached business name once on mount.
   useEffect(() => {
@@ -58,6 +59,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     localStorage.setItem(BUSINESS_KEY, JSON.stringify(name));
   };
 
+  const clearSelectedStoreId = () => {
+    setSelectedStoreId(null);
+  };
+
   const value = useMemo<UserContextValue>(
     () => ({
       user,
@@ -67,8 +72,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       logout,
       businessName,
       setBusinessName,
+      selectedStoreId,
+      setSelectedStoreId,
+      clearSelectedStoreId,
     }),
-    [user, isLoading, businessName],
+    [user, isLoading, businessName, selectedStoreId],
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
