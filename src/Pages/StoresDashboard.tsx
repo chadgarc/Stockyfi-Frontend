@@ -31,10 +31,15 @@ const EMPTY_ERRORS: StoreFieldErrors = {
 
 export const StoresDashboard = () => {
   const { user, clearSelectedStoreId } = useUser();
-  const { listStores, createStore, deleteStore, loading } = useFetchData();
+  const { listStores, createStore, deleteStore, updateStore, loading } =
+    useFetchData();
   const [stores, setStores] = useState<Store[]>([]);
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Store | null>(null);
+  const [editForm, setEditForm] = useState<NewStorePayload>(EMPTY_FORM);
+  const [editErrors, setEditErrors] =
+    useState<StoreFieldErrors>(EMPTY_ERRORS);
   const [pending, setPending] = useState<Store | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState<NewStorePayload>(EMPTY_FORM);
@@ -64,6 +69,43 @@ export const StoresDashboard = () => {
     setModalOpen(false);
     setForm(EMPTY_FORM);
     setFieldErrors(EMPTY_ERRORS);
+  };
+
+  const closeEdit = () => {
+    setEditTarget(null);
+    setEditForm(EMPTY_FORM);
+    setEditErrors(EMPTY_ERRORS);
+  };
+
+  const setEdit = (key: keyof NewStorePayload) => (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setEditForm((f) => ({ ...f, [key]: e.target.value }));
+    setEditErrors((prev) => ({ ...prev, [key]: "" }));
+  };
+
+  const handleUpdate = async () => {
+    if (!editTarget) return;
+    const errors = validateStore(editForm);
+    setEditErrors(errors);
+    if (Object.values(errors).some(Boolean)) return;
+    setSaving(true);
+    try {
+      // Update only confirms; the list is the source of truth.
+      await updateStore(editTarget._id, editForm);
+      setStores(await listStores());
+      closeEdit();
+    } catch (err) {
+      setEditErrors((prev) => ({
+        ...prev,
+        name:
+          err instanceof ApiError
+            ? err.message
+            : "Could not update the store.",
+      }));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSave = async () => {
@@ -137,7 +179,22 @@ export const StoresDashboard = () => {
           <p className="opacity-70">Loading stores…</p>
         ) : (
           stores.map((store) => (
-            <Card key={store._id} store={store} onDelete={setPending} />
+            <Card
+              key={store._id}
+              store={store}
+              onDelete={setPending}
+              onEdit={(s) => {
+                setEditForm({
+                  name: s.name,
+                  streetAddress: s.streetAddress,
+                  city: s.city,
+                  state: s.state,
+                  zip: s.zip,
+                });
+                setEditErrors(EMPTY_ERRORS);
+                setEditTarget(s);
+              }}
+            />
           ))
         )}
       </div>
@@ -188,6 +245,59 @@ export const StoresDashboard = () => {
             type="button"
             className={BTN_PRIMARY_OUTLINE}
             onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        id="edit-store"
+        title={`Edit ${editTarget?.name ?? ""}`}
+        open={editTarget !== null}
+        onClose={closeEdit}
+      >
+        <div className="mt-4 flex flex-col gap-2">
+          <Field
+            legend="Name"
+            value={editForm.name}
+            onChange={setEdit("name")}
+            error={editErrors.name}
+          />
+          <Field
+            legend="Street"
+            value={editForm.streetAddress}
+            onChange={setEdit("streetAddress")}
+            error={editErrors.streetAddress}
+          />
+          <Field
+            legend="City"
+            value={editForm.city}
+            onChange={setEdit("city")}
+            error={editErrors.city}
+          />
+          <Field
+            legend="State"
+            value={editForm.state}
+            onChange={setEdit("state")}
+            error={editErrors.state}
+          />
+          <Field
+            legend="Zip"
+            value={editForm.zip}
+            onChange={setEdit("zip")}
+            error={editErrors.zip}
+          />
+        </div>
+        <div className="modal-action">
+          <button type="button" className={BTN_OUTLINE} onClick={closeEdit}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={BTN_PRIMARY_OUTLINE}
+            onClick={handleUpdate}
             disabled={saving}
           >
             {saving ? "Saving…" : "Save"}

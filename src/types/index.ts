@@ -146,6 +146,8 @@ export interface UseFetchDataReturn {
   createStore: (payload: NewStorePayload) => Promise<void>;
   /** DELETE /api/stores/:storeId -> 200 (cascade). Re-fetch after. */
   deleteStore: (storeId: string) => Promise<void>;
+  /** PUT /api/stores/:storeId -> 200 {message} (owner only). Re-fetch after. */
+  updateStore: (storeId: string, payload: NewStorePayload) => Promise<void>;
   /** GET /api/stores/:storeId/users -> staff of one store. */
   listUsers: (storeId: string) => Promise<StaffUser[]>;
   /** GET /api/users (owner) filtered to role owner. */
@@ -188,6 +190,8 @@ export interface CardProps {
   onSelect?: (storeId: string) => void;
   /** Called when the Delete button is pressed (opens confirm modal). */
   onDelete?: (store: Store) => void;
+  /** Called when the Edit button is pressed (opens edit modal). */
+  onEdit?: (store: Store) => void;
 }
 
 /** Staff member listed in EmployeeManagement (never includes password). */

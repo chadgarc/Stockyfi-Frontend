@@ -4,9 +4,9 @@
 import { useNavigate } from "react-router";
 import { useUser } from "../context/UserContext";
 import type { CardProps } from "../types";
-import { BTN_ERROR_OUTLINE, BTN_PRIMARY_OUTLINE } from "../constants/ui";
+import { BTN_ERROR_OUTLINE, BTN_OUTLINE, BTN_PRIMARY_OUTLINE } from "../constants/ui";
 
-export const Card = ({ store, onSelect, onDelete }: CardProps) => {
+export const Card = ({ store, onSelect, onDelete, onEdit }: CardProps) => {
   const navigate = useNavigate();
   const { setSelectedStoreId } = useUser();
 
@@ -21,6 +21,12 @@ export const Card = ({ store, onSelect, onDelete }: CardProps) => {
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete?.(store);
+  };
+
+  // Edit must not trigger the card navigation either.
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(store);
   };
 
   return (
@@ -43,6 +49,13 @@ export const Card = ({ store, onSelect, onDelete }: CardProps) => {
             onClick={handleDelete}
           >
             Delete
+          </button>
+          <button
+            type="button"
+            className={BTN_OUTLINE}
+            onClick={handleEdit}
+          >
+            Edit
           </button>
           <button
             type="button"

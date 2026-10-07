@@ -156,6 +156,25 @@ export const useFetchData = (): UseFetchDataReturn => {
     }
   }, []);
 
+  const updateStore = useCallback(
+    async (storeId: string, payload: NewStorePayload): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Backend answers 200 {message} with no store body.
+        await api.put<{ message: string }>(`/stores/${storeId}`, payload);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
   // --- Staff ---
   const listUsers = useCallback(async (storeId: string): Promise<StaffUser[]> => {
     setLoading(true);
@@ -335,6 +354,7 @@ export const useFetchData = (): UseFetchDataReturn => {
     listStores,
     createStore,
     deleteStore,
+    updateStore,
     listUsers,
     listOwners,
     registerEmployee,

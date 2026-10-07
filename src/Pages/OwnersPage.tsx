@@ -231,7 +231,7 @@ export const OwnersPage = () => {
         <div className="mt-4 flex flex-col gap-2">
           <Field
             legend="Name"
-            placeholder="Chad Owner"
+            placeholder="Owner Name"
             value={addForm.name}
             onChange={(e) =>
               setAddForm((f) => ({ ...f, name: e.target.value }))
@@ -239,7 +239,7 @@ export const OwnersPage = () => {
           />
           <Field
             legend="Email"
-            placeholder="owner@silvermart.com"
+            placeholder="owner@domain.com"
             value={addForm.email}
             onChange={(e) =>
               setAddForm((f) => ({ ...f, email: e.target.value }))

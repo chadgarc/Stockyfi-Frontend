@@ -278,13 +278,13 @@ export const UsersPage = () => {
         <div className="mt-4 flex flex-col gap-2">
           <Field
             legend="Name"
-            placeholder="Marta Manager"
+            placeholder="Employee Name"
             value={form.name}
             onChange={set("name")}
           />
           <Field
             legend="Email"
-            placeholder="marta@silvermart.com"
+            placeholder="employee@domain.com"
             value={form.email}
             onChange={set("email")}
           />
