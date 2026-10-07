@@ -107,6 +107,25 @@ export const useFetchData = (): UseFetchDataReturn => {
     }
   }, []);
 
+  const updateBusiness = useCallback(
+    async (payload: BusinessInfo): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Owner only; backend answers 200 with no business body.
+        await api.put<{ message: string }>("/info", payload);
+      } catch (err) {
+        const apiErr = toApiError(err);
+        setError(apiErr.message);
+        errorHandler(apiErr);
+        throw apiErr;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
   // --- Stores ---
   const listStores = useCallback(async (): Promise<Store[]> => {
     setLoading(true);
@@ -433,6 +452,7 @@ export const useFetchData = (): UseFetchDataReturn => {
     setup,
     fetchMe,
     fetchBusiness,
+    updateBusiness,
     listStores,
     createStore,
     deleteStore,

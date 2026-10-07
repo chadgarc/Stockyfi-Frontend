@@ -4,6 +4,7 @@ import { StoreDashboard } from './Pages/StoreDashboard'
 import { UsersPage } from './Pages/UsersPage'
 import { OwnersPage } from './Pages/OwnersPage'
 import { InventoryPage } from './Pages/InventoryPage'
+import { BusinessPage } from './Pages/BusinessPage'
 import { LoginPage } from './Pages/LoginPage'
 import { SetupPage } from './Pages/SetupPage'
 import { PrivateRoute, RoleRoute, JurisdictionGuard, RoleLanding } from './components/guards'
@@ -25,6 +26,7 @@ function App() {
                 <Route element={<RoleRoute allowed={["owner"]} />}>
                   <Route path="/stores" element={<StoresDashboard />} />
                   <Route path="/owners" element={<OwnersPage />} />
+                  <Route path="/business" element={<BusinessPage />} />
                 </Route>
                 <Route element={<JurisdictionGuard />}>
                   <Route path="/stores/:storeId" element={<StoreDashboard />} />

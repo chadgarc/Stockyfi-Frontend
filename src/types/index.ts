@@ -140,6 +140,8 @@ export interface UseFetchDataReturn {
   fetchMe: (token?: string) => Promise<MeProfile>;
   /** GET /api/info -> business. Navbar only reads `name`. */
   fetchBusiness: () => Promise<BusinessInfo>;
+  /** PUT /api/info -> 200 (owner only). Navbar name refreshes after. */
+  updateBusiness: (payload: BusinessInfo) => Promise<void>;
   /** GET /api/stores -> all stores (owner) or own store (rest). */
   listStores: () => Promise<Store[]>;
   /** POST /api/stores -> 201 {message} (no store body). Re-fetch after. */
