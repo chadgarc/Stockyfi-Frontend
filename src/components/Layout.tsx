@@ -13,12 +13,14 @@ import { useFetchData } from "../hooks/useFetchData";
  * GET /api/info, falling back to "SilverMart".
  */
 export const Layout = () => {
-  const { user, businessName, setBusinessName, logout } = useUser();
+  const { user, businessName, setBusinessName, logout, selectedStoreId } =
+    useUser();
   const { fetchBusiness } = useFetchData();
   const navigate = useNavigate();
 
   const role = user?.role;
   const storeId = user?.storeId ?? undefined;
+  const ownerStoreId = selectedStoreId ?? undefined;
 
   // Refresh the business name once per session. Non-owners may get
   // 403 until the backend opens GET /api/info (see notes.md);
@@ -55,6 +57,16 @@ export const Layout = () => {
             {role === "owner" && (
               <li>
                 <NavLink to="/business">Business</NavLink>
+              </li>
+            )}
+            {role === "owner" && (
+              <li>
+                <NavLink to="/owners">Owners</NavLink>
+              </li>
+            )}
+            {role === "owner" && ownerStoreId && (
+              <li>
+                <NavLink to={`/stores/${ownerStoreId}/users`}>Users</NavLink>
               </li>
             )}
             {role === "manager" && storeId && (
