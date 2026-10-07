@@ -11,6 +11,7 @@ export const EmployeeTable = ({
   onEdit,
   onDelete,
   onTransfer,
+  canAct,
 }: EmployeeTableProps) => (
   <div className="overflow-x-auto">
     <table className="table">
@@ -51,23 +52,27 @@ export const EmployeeTable = ({
               </td>
               <td>
                 <div className="flex gap-1">
-                  <button
-                    type="button"
-                    className={`${BTN_OUTLINE} btn-xs`}
-                    onClick={() => onEdit(emp)}
-                    aria-label={`Edit ${emp.name}`}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    className={`${BTN_ERROR_OUTLINE} btn-xs`}
-                    onClick={() => onDelete(emp)}
-                    aria-label={`Delete ${emp.name}`}
-                  >
-                    Delete
-                  </button>
-                  {showTransfer && (
+                  {(!canAct || canAct(emp)) && (
+                    <>
+                      <button
+                        type="button"
+                        className={`${BTN_OUTLINE} btn-xs`}
+                        onClick={() => onEdit(emp)}
+                        aria-label={`Edit ${emp.name}`}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className={`${BTN_ERROR_OUTLINE} btn-xs`}
+                        onClick={() => onDelete(emp)}
+                        aria-label={`Delete ${emp.name}`}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                  {showTransfer && (!canAct || canAct(emp)) && (
                     <button
                       type="button"
                       className={`${BTN_OUTLINE} btn-xs`}

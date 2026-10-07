@@ -53,7 +53,13 @@ export const UsersPage = () => {
   const [confirmTransfer, setConfirmTransfer] = useState<Store | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
-  const [editForm, setEditForm] = useState({ name: "", email: "" });
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    role: "associate" as UserRole,
+    password: "",
+    confirm: "",
+  });
   const [saving, setSaving] = useState(false);
   const [stores, setStores] = useState<Store[]>([]);
   const [storeQuery, setStoreQuery] = useState("");
@@ -143,12 +149,21 @@ export const UsersPage = () => {
     const emailErr = validateEmail(editForm.email);
     if (!editForm.name.trim()) return setFormError("Enter the name.");
     if (emailErr) return setFormError(emailErr);
+    // Password is optional here: blank means "do not change".
+    if (editForm.password || editForm.confirm) {
+      if (editForm.password !== editForm.confirm)
+        return setFormError("Passwords do not match.");
+      if (editForm.password.length < 8)
+        return setFormError("Passwords are at least 8 characters.");
+    }
     setFormError("");
     setSaving(true);
     try {
       await updateEmployee(storeId, editTarget._id, {
         name: editForm.name.trim(),
         email: editForm.email.trim(),
+        role: editForm.role,
+        ...(editForm.password ? { password: editForm.password } : {}),
       });
       await refresh();
       setEditTarget(null);
@@ -234,8 +249,17 @@ export const UsersPage = () => {
           employees={visible}
           loading={loading}
           showTransfer={isOwner}
+          canAct={(u) =>
+            isOwner ? true : u.role !== "owner" && u.role !== "manager"
+          }
           onEdit={(u) => {
-            setEditForm({ name: u.name, email: u.email });
+            setEditForm({
+              name: u.name,
+              email: u.email,
+              role: u.role,
+              password: "",
+              confirm: "",
+            });
             setFormError("");
             setEditTarget(u);
           }}
@@ -334,6 +358,41 @@ export const UsersPage = () => {
             value={editForm.email}
             onChange={(e) =>
               setEditForm((f) => ({ ...f, email: e.target.value }))
+            }
+          />
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Role</legend>
+            <select
+              className="select w-full"
+              value={editForm.role}
+              onChange={(e) =>
+                setEditForm((f) => ({
+                  ...f,
+                  role: e.target.value as UserRole,
+                }))
+              }
+            >
+              {isOwner && <option value="owner">owner</option>}
+              <option value="manager">manager</option>
+              <option value="associate">associate</option>
+            </select>
+          </fieldset>
+          <Field
+            legend="New Password (blank = keep current)"
+            type="password"
+            placeholder="••••••••"
+            value={editForm.password}
+            onChange={(e) =>
+              setEditForm((f) => ({ ...f, password: e.target.value }))
+            }
+          />
+          <Field
+            legend="Confirm New Password"
+            type="password"
+            placeholder="••••••••"
+            value={editForm.confirm}
+            onChange={(e) =>
+              setEditForm((f) => ({ ...f, confirm: e.target.value }))
             }
           />
           {formError && (

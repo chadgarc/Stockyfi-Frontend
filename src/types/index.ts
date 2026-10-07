@@ -214,6 +214,8 @@ export interface UpdateEmployeePayload {
   name?: string;
   email?: string;
   role?: UserRole;
+  /** New password; omit or blank means "do not change". */
+  password?: string;
 }
 
 /** Props for the shared employee table (used by Users + Owners pages). */
@@ -225,6 +227,8 @@ export interface EmployeeTableProps {
   onEdit: (user: StaffUser) => void;
   onDelete: (user: StaffUser) => void;
   onTransfer?: (user: StaffUser) => void;
+  /** Per-row gate; when false the row shows no actions. */
+  canAct?: (user: StaffUser) => boolean;
 }
 
 /** Props for the back button component. */
