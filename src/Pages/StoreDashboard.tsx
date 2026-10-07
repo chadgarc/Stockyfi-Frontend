@@ -4,6 +4,7 @@
 import { useNavigate, useParams } from "react-router";
 import { useUser } from "../context/UserContext";
 import { BackButton } from "../components/BackButton";
+import { BTN_PRIMARY_OUTLINE } from "../constants/ui";
 
 export const StoreDashboard = () => {
   const { storeId } = useParams<{ storeId: string }>();
@@ -16,8 +17,7 @@ export const StoreDashboard = () => {
 
       <BackButton to="/stores" label="Back"/>
 
-      {/* Welcome hero, at most 2/5 of the viewport height. */}
-      <div className="card bg-base-100 shadow-sm mt-6">
+      <div className="card bg-base-100 max-w-[790px] mx-auto shadow-sm mt-6">
         <div className="card-body max-h-[40vh] items-center text-center">
           <h1 className="card-title text-2xl">Welcome {user?.name ?? ""}</h1>
           <p className="opacity-70">What do you want to do?</p>
@@ -32,7 +32,7 @@ export const StoreDashboard = () => {
             <div className="card-actions justify-end">
               <button
                 type="button"
-                className="btn btn-primary"
+                className={BTN_PRIMARY_OUTLINE}
                 onClick={() => navigate(`/stores/${storeId}/inventory`)}
               >
                 Open
@@ -49,7 +49,7 @@ export const StoreDashboard = () => {
               <div className="card-actions justify-end">
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className={BTN_PRIMARY_OUTLINE}
                   onClick={() => navigate(`/stores/${storeId}/users`)}
                 >
                   Open
