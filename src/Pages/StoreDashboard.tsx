@@ -13,9 +13,11 @@ export const StoreDashboard = () => {
 
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-8">
-      <BackButton to="/stores" label="Back" classStyle="btn btn-ghost" />
+
+      <BackButton to="/stores" label="Back"/>
+
       {/* Welcome hero, at most 2/5 of the viewport height. */}
-      <div className="card bg-base-100 shadow-sm">
+      <div className="card bg-base-100 shadow-sm mt-6">
         <div className="card-body max-h-[40vh] items-center text-center">
           <h1 className="card-title text-2xl">Welcome {user?.name ?? ""}</h1>
           <p className="opacity-70">What do you want to do?</p>
