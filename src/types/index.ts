@@ -134,3 +134,16 @@ export interface RoleRouteProps {
   /** Where to send denied roles. Defaults to their landing page. */
   fallback?: string;
 }
+
+/** Props for the store card used by the owner's dashboard. */
+export interface CardProps {
+  store: Store;
+  onSelect?: (storeId: string) => void;
+}
+
+/** Props for the back button component. */
+export interface BackButtonProps {
+  to?: string;
+  label?: string;
+  classStyle?: string;
+}
