@@ -7,3 +7,6 @@ export const BTN_OUTLINE = "btn btn-outline";
 
 /** Primary outline button (e.g. Save actions). */
 export const BTN_PRIMARY_OUTLINE = "btn btn-outline btn-primary";
+
+/** Danger outline button (e.g. Delete actions). */
+export const BTN_ERROR_OUTLINE = "btn btn-outline btn-error";
