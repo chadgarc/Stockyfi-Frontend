@@ -13,9 +13,9 @@ export const EmployeeTable = ({
   onTransfer,
   canAct,
 }: EmployeeTableProps) => (
-  <div className="overflow-x-auto">
+  <div className="max-h-[55vh] overflow-auto">
     <table className="table">
-      <thead>
+      <thead className="sticky top-0 z-10 bg-base-100">
         <tr>
           <th>Name</th>
           <th>Role</th>

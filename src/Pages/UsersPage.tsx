@@ -474,9 +474,9 @@ export const UsersPage = () => {
                 onChange={(e) => setStoreQuery(e.target.value)}
               />
             </div>
-            <div className="overflow-x-auto">
+            <div className="max-h-[40vh] overflow-auto">
               <table className="table">
-                <thead>
+                <thead className="sticky top-0 z-10 bg-base-100">
                   <tr>
                     <th>Store</th>
                     <th>Address</th>
