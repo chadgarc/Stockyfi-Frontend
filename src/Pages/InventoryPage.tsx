@@ -332,7 +332,7 @@ export const InventoryPage = () => {
                 <th>Department</th>
                 <th>inShelf</th>
                 <th>inStock</th>
-                <th>Actions</th>
+                {canManage && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -379,8 +379,8 @@ export const InventoryPage = () => {
                         item.inStock
                       )}
                     </td>
-                    <td>
-                      {canManage && (
+                    {canManage && (
+                      <td>
                         <div className="flex gap-1">
                           <button
                             type="button"
@@ -399,8 +399,8 @@ export const InventoryPage = () => {
                             Delete
                           </button>
                         </div>
-                      )}
-                    </td>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
