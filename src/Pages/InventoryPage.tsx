@@ -25,6 +25,62 @@ const EMPTY_FORM = {
   inShelf: "0",
 };
 
+// Inline integer editor (DaisyUI join: input + save) for associate counts.
+// Non-integers -> alert + revert, no request. Out of range -> clamped.
+const CountEditor = ({
+  value,
+  max,
+  onSave,
+  ariaLabel,
+}: {
+  value: number;
+  max?: number;
+  onSave: (next: number) => void;
+  ariaLabel: string;
+}) => {
+  const [draft, setDraft] = useState(String(value));
+
+  // Resync when the list reloads after a save.
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const commit = () => {
+    if (!/^\d+$/.test(draft.trim())) {
+      window.alert("Invalid value: whole numbers only.");
+      setDraft(String(value));
+      return;
+    }
+    let next = parseInt(draft.trim(), 10);
+    if (next < 0) next = 0;
+    if (max !== undefined && next > max) next = max;
+    onSave(next);
+  };
+
+  return (
+    <span className="join">
+      <input
+        type="text"
+        inputMode="numeric"
+        className="input input-xs join-item w-16"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commit();
+        }}
+        aria-label={ariaLabel}
+      />
+      <button
+        type="button"
+        className={`${BTN_OUTLINE} btn-xs join-item`}
+        onClick={commit}
+      >
+        save
+      </button>
+    </span>
+  );
+};
+
 export const InventoryPage = () => {
   const { storeId } = useParams<{ storeId: string }>();
   const { user } = useUser();
@@ -141,18 +197,28 @@ export const InventoryPage = () => {
     }
   };
 
-  // Associates restock shelves only: sends {inShelf} per backend guard.
-  const stepShelf = async (item: Item, delta: number) => {
+  // Associates can change inStock/inShelf only: the backend rejects partial
+  // payloads, so resend the stored name/upc/department unchanged.
+  const saveCounts = async (
+    item: Item,
+    nextStock: number,
+    nextShelf: number,
+  ) => {
     if (!storeId) return;
-    const next = Math.max(0, Math.min(item.inStock, item.inShelf + delta));
-    if (next === item.inShelf) return;
+    if (nextStock === item.inStock && nextShelf === item.inShelf) return;
     setError("");
     try {
-      await updateItem(storeId, item._id, { inShelf: next });
+      await updateItem(storeId, item._id, {
+        name: item.name,
+        upc: item.upc,
+        inStock: nextStock,
+        inShelf: nextShelf,
+        department: item.department,
+      });
       setItems(await listItems(storeId));
     } catch (e) {
       setError(
-        e instanceof ApiError ? e.message : "Could not update the shelf.",
+        e instanceof ApiError ? e.message : "Could not update the counts.",
       );
     }
   };
@@ -284,32 +350,35 @@ export const InventoryPage = () => {
                     <td>{item.department ?? "—"}</td>
                     <td>
                       {isAssociate ? (
-                        <span className="inline-flex items-center gap-1">
-                          <button
-                            type="button"
-                            className={`${BTN_OUTLINE} btn-xs`}
-                            onClick={() => stepShelf(item, -1)}
-                            aria-label={`Decrease shelf for ${item.name}`}
-                          >
-                            −
-                          </button>
-                          <span className="min-w-8 text-center">
-                            {item.inShelf}
-                          </span>
-                          <button
-                            type="button"
-                            className={`${BTN_OUTLINE} btn-xs`}
-                            onClick={() => stepShelf(item, 1)}
-                            aria-label={`Increase shelf for ${item.name}`}
-                          >
-                            +
-                          </button>
-                        </span>
+                        <CountEditor
+                          value={item.inShelf}
+                          max={item.inStock}
+                          onSave={(next) =>
+                            saveCounts(item, item.inStock, next)
+                          }
+                          ariaLabel={`Shelf for ${item.name}`}
+                        />
                       ) : (
                         item.inShelf
                       )}
                     </td>
-                    <td>{item.inStock}</td>
+                    <td>
+                      {isAssociate ? (
+                        <CountEditor
+                          value={item.inStock}
+                          onSave={(next) =>
+                            saveCounts(
+                              item,
+                              next,
+                              Math.min(item.inShelf, next),
+                            )
+                          }
+                          ariaLabel={`Stock for ${item.name}`}
+                        />
+                      ) : (
+                        item.inStock
+                      )}
+                    </td>
                     <td>
                       {canManage && (
                         <div className="flex gap-1">
