@@ -14,9 +14,8 @@ function App() {
   // Public pages (login/setup) render without the navbar.
   // Everything else requires a session and lives under Layout.
   return (
-    <div className="dottedBackground w-full h-svh">
-      <div className="">
-        <HashRouter>
+    <div className="dottedBackground w-full min-h-svh">
+      <HashRouter>
           <Routes>
             <Route path="/setup" element={<SetupPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -44,7 +43,6 @@ function App() {
             </Route>
           </Routes>
         </HashRouter>
-      </div>
     </div>
   )
 }
