@@ -19,6 +19,11 @@ Frontend client for **Stockify**, a full-featured retail & warehouse inventory s
 [![Backend Repo](https://img.shields.io/badge/🔗_Backend_Repository-gray?style=flat-square&logo=github)](https://github.com/chadgarc/Stockyfi-Backend)
 &nbsp;&nbsp;
 [![Usage Guide](https://img.shields.io/badge/📖_Usage_&_Visual_Guide-blue?style=flat-square&logo=gitbook)](./USAGE_GUIDE.md)
+<br/>
+
+[![Render Deployment](https://img.shields.io/badge/Render_Deployment-blue?style=flat-square&logo=render)](https://stockyfi-frontend.onrender.com)
+
+[![GitHub Deployment](https://img.shields.io/badge/GitHub_Deployment-blue?style=flat-square&logo=github)](https://chadgarc.github.io/Stockyfi-Frontend)
 
 </div>
 
