@@ -21,9 +21,9 @@ Frontend client for **Stockify**, a full-featured retail & warehouse inventory s
 [![Usage Guide](https://img.shields.io/badge/📖_Usage_&_Visual_Guide-blue?style=flat-square&logo=gitbook)](./USAGE_GUIDE.md)
 <br/>
 
-[![Render Deployment](https://img.shields.io/badge/Render_Deployment-blue?style=flat-square&logo=render)](https://stockyfi-frontend.onrender.com)
-
-[![GitHub Deployment](https://img.shields.io/badge/GitHub_Deployment-blue?style=flat-square&logo=github)](https://chadgarc.github.io/Stockyfi-Frontend)
+[![Render Deployment](https://img.shields.io/badge/Render_Deployment-red?style=flat-square&logo=render)](https://stockyfi-frontend.onrender.com)
+&nbsp;&nbsp;
+[![GitHub Deployment](https://img.shields.io/badge/GitHub_Deployment-red?style=flat-square&logo=github)](https://chadgarc.github.io/Stockyfi-Frontend)
 
 </div>
 
@@ -60,7 +60,7 @@ Stockify enforces multi-layered permission boundaries via `PrivateRoute`, `RoleR
 | Feature & View                       |        👑 Owner         |            🛡️ Manager            |         👷 Associate         |
 | :----------------------------------- | :---------------------: | :------------------------------: | :--------------------------: |
 | **Store Management** (`/stores`)     |     ✅ _Full CRUD_      |                ❌                |              ❌              |
-| **Store Hub** (`/stores/:storeId`)   |     ✅ _All Stores_     |     🔹 _Assigned Store Only_     |   🔹 _Assigned Store Only_   |
+| **Store Hub** (`/stores/:storeId`)   |     ✅ _All Stores_     |     ✅ _Assigned Store Only_     |              ❌              |
 | **Staff & Users** (`…/users`)        |  ✅ _Full + Transfer_   | 🔹 _Own Store (Associates Only)_ |              ❌              |
 | **Owner Administration** (`/owners`) |     ✅ _Full CRUD_      |                ❌                |              ❌              |
 | **Inventory Grid** (`…/inventory`)   | ✅ _Full CRUD + Search_ |     ✅ _Full CRUD + Search_      | ✏️ _Inline Count Edits Only_ |
